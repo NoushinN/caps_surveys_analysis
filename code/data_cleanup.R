@@ -32,130 +32,120 @@ covid_survey_provinces <- covid_survey %>%
                               province %in% out ~ "Other")) 
 
 #----------------------------------------------------------------------------------------
-levels(factor(covid_survey$`In which province are you doing your postdoctoral fellowship?`))
 
-maps <- maps[, -c(1,2)]
-maps <- maps[,-8]
+# Figure 1A-B-C ("work interruptions")
+levels(factor(covid_survey$`Have you had to cancel any plans to attend a conference/meeting/lab visit this year due to the pandemic?`))
+levels(factor(covid_survey$`Has your current fellowships/contracts have been impacted?`))
+levels(factor(covid_survey$`Has any of your job applications/interviews been disrupted?`))
 
-google_canada <- maps %>%
-  filter(str_detect(maps$country, "Canada")) %>%
-  mutate(Province = str_replace(country, ",Canada", "")) %>%
-  mutate(Province = as.factor(Province))
+fig_1 <- covid_survey_provinces[,c(4, 9, 10, 19)]
 
+fig_1 <- fig_1 %>% 
+  rename(work_interruptions = `Have you had to cancel any plans to attend a conference/meeting/lab visit this year due to the pandemic?`,
+         job_app_interruptions = `Has any of your job applications/interviews been disrupted?`,
+         fellowship_interruptions = `Has your current fellowships/contracts have been impacted?`)
 
-google_canada <- google_canada[,-8]
+library(RColorBrewer)
+display.brewer.all(10)
 
-#---------------------------------------------------------------------
+a <- fig_1 %>%
+  group_by(work_interruptions) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count /sum(count) * 100)
 
-library(ggExtra) 
-
-g <- ggplot(data = google_canada, 
-       aes(x = Province, y = parks)) +
-  geom_point(aes(col=parks, size=workplace)) + 
-  geom_smooth(method="loess", se=F) + 
-  labs(subtitle="Stay-at-Home-Watch", 
-       y="parks", 
-       x="Canadian Provinces", 
-       title="Park mobility scatterplot for Canada", 
-       caption = "Source: Google Maps") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-ggsave("scatterplot_canada.pdf")
-
-ggMarginal(g, type = "histogram", fill="transparent")
-
-#---------------------------------------------------------------------
-# load confirmed cases
-confirmed <- fread(here::here("csse_covid_19_data", "csse_covid_19_time_series", "time_series_covid19_confirmed_global.csv")) 
-death <- fread(here::here("csse_covid_19_data", "csse_covid_19_time_series", "time_series_covid19_deaths_global.csv"))
-recovered <- fread(here::here("csse_covid_19_data", "csse_covid_19_time_series", "time_series_covid19_recovered_global.csv"))
-
-#-----------------------------------------------------------
-
-# make a dataframe for all of Canada
-drop_columns <- c("Country/Region", "Lat", "Long")
-
-ccc <- confirmed %>%
-  filter(`Country/Region` == "Canada") %>%
-  select(-one_of(drop_columns)) %>%
-  pivot_longer(-`Province/State`, names_to = "date", values_to = "confirmed_counts") %>%
-  mutate(date = mdy(date)) %>%
-  rename(Province = `Province/State`)
+a_plot <- ggplot(a) + 
+  aes(x = work_interruptions, y = percentage, fill =work_interruptions) +
+  geom_bar(colour="black", stat = "identity", width=.5, 
+           fill = brewer.pal(length(unique(a$work_interruptions)), "Spectral")) + 
+  labs(title="Figure 1. Postdoc work interruptions", 
+       subtitle="A", 
+       caption="") + 
+  theme(axis.text.x = element_text(angle=0, vjust=0.6)) +
+  guides(fill=FALSE)
 
 
-dcc <- death %>%
-  filter(`Country/Region` == "Canada") %>%
-  select(-one_of(drop_columns)) %>%
-  pivot_longer(-`Province/State`, names_to = "date", values_to = "death_counts") %>%
-  mutate(date = mdy(date)) %>%
-  rename(Province = `Province/State`)
 
+b <- fig_1 %>%
+  group_by(fellowship_interruptions) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count /sum(count) * 100)
 
-rcc <- recovered %>%
-  filter(`Country/Region` == "Canada") %>%
-  select(-one_of(drop_columns)) %>%
-  pivot_longer(-`Province/State`, names_to = "date", values_to = "recovered_counts") %>%
-  mutate(date = mdy(date)) %>%
-  rename(Province = `Province/State`)
+b_plot <- ggplot(b) + 
+  aes(x = fellowship_interruptions, y = percentage, fill =fellowship_interruptions)+
+  geom_bar(colour="black", stat = "identity", width=.5,
+           fill = brewer.pal(length(unique(b$fellowship_interruptions)), "Spectral")) + 
+  labs(title="Figure 1. Postdoc fellowship interruptions", 
+       subtitle="B", 
+       caption="") + 
+  theme(axis.text.x = element_text(angle=0, vjust=0.6))
 
+c <- fig_1 %>%
+  group_by(job_app_interruptions) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count /sum(count) * 100) %>%
+  na.omit()
 
-combinedc <- cbind(ccc, dcc, rcc, by = "date") 
+c_plot <- ggplot(c) + 
+  aes(x = job_app_interruptions, y = percentage, fill =job_app_interruptions) +
+  geom_bar(colour="black", stat = "identity", width=.5,
+           fill = brewer.pal(length(unique(c$job_app_interruptions)), "Spectral")) + 
+  labs(title="Figure 1. Job application interruptions", 
+       subtitle="C", 
+       caption="source: CAPS-ACSP COVID-19 Postdoc Survey") + 
+  theme(axis.text.x = element_text(angle=0, vjust=0.6))
 
-combinedc_cleanup <- combinedc[,c(1:3, 6, 9)]
+library("gridExtra")
+grid.arrange(a_plot,b_plot,c_plot, ncol = 2, nrow = 2)
 
-# make data to visualize
-JHU <- combinedc_cleanup %>%
-  filter(!Province == "Diamond Princess") %>%
-  filter(!Province == "Grand Princess") %>%
-  filter(!Province == "Recovered") %>%
-  mutate(death_counts = case_when(death_counts == "1" ~ "Yes",
-                                  TRUE ~ "No")) %>%
-  mutate(week_in_2020 = week(date)) %>%
-  mutate(Province = as.factor(Province))
+#----------------------------------------------------------------------------------------
 
-#-----------------------------------------------------------
+# Figure 2 ("impact on work")
+levels(factor(covid_survey$`Are they working remotely or had to adapt, or was their research something amenable to remote working?`))
 
-# JHU data
-head(JHU)
+fig_2 <- covid_survey_provinces[,c(8, 19)]
 
-# Google maps data
-head(google_canada)
+fig_2 <- fig_2 %>% 
+  rename(adaptation = `Are they working remotely or had to adapt, or was their research something amenable to remote working?`)
 
-merged_data <- merge(google_canada, JHU, by = "Province")
+d <- fig_2 %>%
+  group_by(adaptation) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count /sum(count) * 100) %>%
+  filter(percentage > 1) %>%
+  filter(!adaptation == "Had to adapt working remotely, My research is not amenable to working remotely") 
+  
 
-#-----------------------------------------------------------
+d_plot <- ggplot(d) + 
+  aes(x = adaptation, y = percentage, fill =adaptation) +
+  geom_bar(colour="black", stat = "identity", width=.5,
+           fill = brewer.pal(length(unique(d$adaptation)), "Spectral")) + 
+  labs(title="Figure 2. Amenability of postdocs research to remote work", 
+       subtitle="", 
+       caption="source: CAPS-ACSP COVID-19 Postdoc Survey") + 
+  theme(axis.text.x = element_text(angle=90, hjust=1.0, vjust = 0.5))
 
-# download shp files from statscan
-## https://www12.statcan.gc.ca/census-recensement/2011/geo/bound-limit/bound-limit-eng.cfm
-## e.g. for shp files for census tracts, download: https://www12.statcan.gc.ca/census-recensement/alternative_alternatif.cfm?l=eng&dispext=zip&teng=lct_000a16a_e.zip&k=%20%20%20%20%207190&loc=http://www12.statcan.gc.ca/census-recensement/2011/geo/bound-limit/files-fichiers/2016/lct_000a16a_e.zip
+#----------------------------------------------------------------------------------------
 
-library(maps)
-library(mapdata)
+# Figure 3 ("work adaptations")
+levels(factor(covid_survey$`In a 1-5 scale, was your research activities affected by COVID-19?`))
 
-map("worldHires","Canada",
-xlim=c(-141,-53), #xlim is lattitude
-ylim=c(40,85), #yilm is longitude
-col="gray90",
-fill=TRUE, add = TRUE) # add = TRUE allows additional layers
+fig_3 <- covid_survey_provinces[,c(12, 19)]
 
+fig_3 <- fig_3 %>% 
+  rename(impact = `In a 1-5 scale, was your research activities affected by COVID-19?`)
 
-library(mapproj)
-map("worldHires","Canada",
-xlim=c(-141,-53),
-ylim=c(40,85),
-col="gray90",
-fill=TRUE,
-projection="conic",
-param=35, add = TRUE)
+e <- fig_3 %>%
+  group_by(impact) %>%
+  summarise(count = n()) %>%
+  mutate(percentage = count /sum(count) * 100)
 
-# read in .shp files
-canada_map_poly <- sf::st_read("/Users/noushinnabavi/covid_19_analysis/polygons/lct_000a16a_e/lct_000a16a_e.shp") %>%
-  rename(Province = PRNAME) %>%
-  mutate(Province = as.factor(Province))
-
-
-merged_data[merged_data$Province == canada_map_poly$Province]
-
-merge(merged_data, canada_map_poly, by = Province)
-#-----------------------------------------------------------
+e_plot <- ggplot(e) + 
+  aes(x = impact, y = percentage, fill =impact) +
+  geom_bar(colour="black", stat = "identity", width=.5,
+           fill = brewer.pal(length(unique(e$impact)), "Spectral")) + 
+  labs(title="Figure 3. COVID-19's impact on postdoctoral work", 
+       subtitle="Score of 5 being the most affected and 1 not very affected", 
+       caption="source: CAPS-ACSP COVID-19 Postdoc Survey") + 
+  theme(axis.text.x = element_text(angle=0, hjust=1.0, vjust = 0.5))
 
 
