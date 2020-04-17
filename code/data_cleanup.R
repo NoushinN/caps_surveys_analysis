@@ -109,11 +109,11 @@ fig_2 <- fig_2 %>%
 
 d <- fig_2 %>%
   group_by(adaptation) %>%
+  filter(!adaptation == "Had to adapt working remotely, My research is not amenable to working remotely") %>%
+  filter(!adaptation == "Can work remote, Had to adapt working remotely") %>%
   summarise(count = n()) %>%
   mutate(percentage = count /sum(count) * 100) %>%
-  filter(percentage > 1) %>%
-  filter(!adaptation == "Had to adapt working remotely, My research is not amenable to working remotely") 
-  
+  filter(percentage > 1) 
 
 d_plot <- ggplot(d) + 
   aes(x = adaptation, y = percentage, fill =adaptation) +
