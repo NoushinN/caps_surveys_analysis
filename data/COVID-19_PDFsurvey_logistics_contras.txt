@@ -1,0 +1,30 @@
+logistics_contras	frequency
+no wetlab/field work possible	32
+uncertainty (funding, career delay, competitiveness)	26
+no childcare / support in caring for family members	24
+less productive / less output with long-term consequences	16
+mental health is affected	9
+Computer / work environment not sufficient for remote work	8
+disconnection from colleagues and/or resources	7
+job search is massively impacted	6
+cancellation of career and personal development events	5
+employer has been slow to adapt to online options or provide information	5
+supervisor has unrealistic work expectations	5
+employer pushes for work exemptions although it does not feel safe	5
+lack of supervision / mentorship	5
+overwhelming/stressful situation	5
+reduced team communication	5
+difficult to find a work routine	4
+limited software / resource access	4
+lack of financial support	3
+lack of supplies / shipping delays for essential research	3
+delay of research ethics applications	2
+Work-life balance is negatively affected / no fixed work hours / constant availability	2
+application for new grants / fellowships very difficult	1
+commuting to work is more difficult	1
+lab access is poorly managed	1
+lack of motivation	1
+lack of sufficient PPE for essential work	1
+stuck in a different country / not allowed to re-enter Canada	1
+stuck in Canada far from home, worried not be permitted to re-enter again	1
+

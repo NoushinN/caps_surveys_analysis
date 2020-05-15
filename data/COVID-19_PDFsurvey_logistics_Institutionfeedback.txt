@@ -1,0 +1,7 @@
+	well organized remote transitioning	allowed to take equipmt home	good information flow	slow to adapt	forces PDFs to conduct lab work
+UofA	5	5	2	2	5
+UofC	8	2	1	1	0
+UWQ	2	0	0	0	0
+UBC	1	1	0	0	0
+StMary	0	0	1	1	0
+

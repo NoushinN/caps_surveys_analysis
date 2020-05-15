@@ -1,4 +1,4 @@
-
+# Code was developed by Sarah Grasedieck
 # declare dependencies
 if (!exists("setup_sourced")) source(here::here("R", "setup.R"))
 
