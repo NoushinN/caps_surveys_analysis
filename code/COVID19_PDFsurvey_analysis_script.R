@@ -1,3 +1,4 @@
+# Code was developed by Sarah Grasedieck
 # declare dependencies
 if (!exists("setup_sourced")) source(here::here("R", "setup.R"))
 
@@ -268,3 +269,6 @@ university <- data.frame(table(res.cat$Inst_categorized))
 colnames(university) <- c("class", "n")
 university$prop <- round(prop.table(table(res.cat$Inst_categorized))*100,2)
 university
+
+#-------------------------------------------------------------------------------------
+git2r::repository()

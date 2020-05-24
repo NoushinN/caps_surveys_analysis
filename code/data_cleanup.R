@@ -1,4 +1,3 @@
-# Code was developed by Sarah Grasedieck
 # declare dependencies
 if (!exists("setup_sourced")) source(here::here("R", "setup.R"))
 
@@ -148,4 +147,6 @@ e_plot <- ggplot(e) +
        caption="source: CAPS-ACSP COVID-19 Postdoc Survey") + 
   theme(axis.text.x = element_text(angle=0, hjust=1.0, vjust = 0.5))
 
+#-------------------------------------------------------------------------------------
+git2r::repository()
 
