@@ -1,7 +1,6 @@
-# Code was developed by Sarah Grasedieck
+# Code was developed by Sarah Grasedieck and Noushin Nabavi
 # declare dependencies
 if (!exists("setup_sourced")) source(here::here("R", "setup.R"))
-
 #---------------------------------------------------------------------
 
 #Incorporate data files
@@ -271,4 +270,38 @@ university$prop <- round(prop.table(table(res.cat$Inst_categorized))*100,2)
 university
 
 #-------------------------------------------------------------------------------------
+
+# negative sentiments
+logistics_contras <- logistics_contras %>%
+  mutate(percentage = round((frequency/sum(frequency) * 100),2))
+
+logistics_contras_p <- logistics_contras %>%
+  filter(frequency > 4) %>%
+  ggplot(aes(x=reorder(logistics_contras, -percentage), y=percentage)) + 
+  geom_bar(stat="identity", fill="red") +
+  theme_minimal() + labs(title="Negative experiences",
+                         y ="Percent", x = "")
+logistics_contras_p + coord_flip() 
+
+
+# positive sentiments
+logistics_pros <- logistics_pros %>%
+  mutate(percentage = round((frequency/sum(frequency) * 100),2))
+
+logistics_pros_p <- logistics_pros %>%
+  #filter(frequency > 1) %>%
+  ggplot(aes(x=reorder(logistics_pros, -percentage), y=percentage)) + 
+  geom_bar(stat="identity", fill="#7d89b9") +
+  theme_minimal() + labs(title="Positive experiences",
+                         y ="Percent", x = "")
+logistics_pros_p + coord_flip() + scale_y_reverse() 
+
+
+# Show graphs side by side
+require(gridExtra)
+plot1 <- logistics_contras_p + coord_flip() 
+plot2 <- logistics_pros_p + coord_flip() 
+grid.arrange(arrangeGrob(plot1, plot2, ncol=1, heights=c(1,1)))
+#-------------------------------------------------------------------------------------
+
 git2r::repository()
