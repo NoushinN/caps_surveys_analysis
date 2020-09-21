@@ -294,7 +294,7 @@ logistics_pros_p <- logistics_pros %>%
   geom_bar(stat="identity", fill="#7d89b9") +
   theme_minimal() + labs(title="Positive experiences",
                          y ="Percent", x = "")
-logistics_pros_p + coord_flip() + scale_y_reverse() 
+logistics_pros_p + ggpubr::rotate()
 
 
 # Show graphs side by side
