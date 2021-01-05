@@ -4,31 +4,24 @@ if (!exists("setup_sourced")) source(here::here("R", "setup.R"))
 #---------------------------------------------------------------------
 
 #Incorporate data files
-res.cat <- read.delim(here::here("data", "COVID-19_PDFsurvey_categorized.txt"), 
-                      row.names=1)
+res.cat_fr <- fread(here::here("data", "COVID-19_PDFsurvey_categorized_fr.csv"))
 
-logistics_pros <- read.delim(here::here("data", "COVID-19_PDFsurvey_logistics_pros.txt"), 
-                             comment.char="#", stringsAsFactors=FALSE)
+logistics_pros_fr <- fread(here::here("data", "COVID-19_PDFsurvey_logistics_pros_fr.csv"))
 
-logistics_contras <- read.delim(here::here("data", "COVID-19_PDFsurvey_logistics_contras.txt"), 
-                                stringsAsFactors=FALSE)
+logistics_contras_fr <- fread(here::here("data", "COVID-19_PDFsurvey_logistics_contras_fr.csv"))
 
-logistics_Instit <- read.delim(here::here("data", "COVID-19_PDFsurvey_logistics_Institutionfeedback.txt"), 
-                               row.names=1, comment.char="#", stringsAsFactors=FALSE)
-
-translation <- readxl::read_excel(here::here("data", "translations.xlsx"))
 
 #---------------------------------------------------------------------
 # horizontal barplots
 library(ggplot2)
 theme_set(theme_classic())
 library(forcats)
-res.cat[res.cat == "NA"] <- NA
-res.cat[res.cat == "NA "] <- NA
-res.cat[res.cat == "N/A"] <- NA
-res.cat[res.cat == " "] <- NA
+res.cat_fr[res.cat_fr == "NA"] <- NA
+res.cat_fr[res.cat_fr == "NA "] <- NA
+res.cat_fr[res.cat_fr == "N/A"] <- NA
+res.cat_fr[res.cat_fr == " "] <- NA
 
-prov_inst_plot <- ggplot(res.cat, aes(x = fct_rev(fct_infreq(Inst_categorized)))) + geom_bar()
+prov_inst_plot <- ggplot(res.cat_fr, aes(x = fct_rev(fct_infreq(Inst_categorized)))) + geom_bar()
 prov_inst_plot + coord_flip()
 
 #---------------------------------------------------------------------
